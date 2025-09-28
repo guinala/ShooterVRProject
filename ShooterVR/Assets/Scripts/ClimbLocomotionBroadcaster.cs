@@ -29,22 +29,54 @@ public class ClimbLocomotionBroadcaster : MonoBehaviour, ILocomotionEventBroadca
         }
     }
     
+    // private void Update()
+    // {
+    //     if (_grabs.Count == 0)
+    //         return;
+    //
+    //     GrabState active = _grabs[_grabs.Count - 1];
+    //
+    //     // // Aquí problema: si no tienes Transform de la mano (solo posición), solo puedes usar posiciones
+    //     // // Puedes tener almacenado el Pose inicial. Supongamos que anchorLocal fue almacenado, y evt del StartGrab incluía evt.Pose.position como world-space
+    //     // // Para cálculo incremental, necesitas la posición actual del interactor con ese identifier.
+    //     // // Supongamos que tienes una forma de obtener Transform o Pose actual del interactor con ese identifier:
+    //     // Pose currentPose = GetPoseForIdentifier(active.identifier);
+    //     // if (currentPose == null) return;
+    //     if (!_poseStore.TryGetPose(active.identifier, out Pose currentPose))
+    //     {
+    //         // si no podemos conseguir la pose, no hacemos nada este frame
+    //         return;
+    //     }
+    //
+    //     Vector3 currentLocal = active.climbTransform.InverseTransformPoint(currentPose.position);
+    //     Vector3 deltaLocal = currentLocal - active.anchorLocal;
+    //     deltaLocal = Vector3.Scale(deltaLocal, active.allowedAxes);
+    //     Vector3 deltaWorld = active.climbTransform.TransformVector(deltaLocal);
+    //
+    //     float dt = Time.deltaTime;
+    //     if (dt <= 0f) dt = 0.0001f;
+    //     Vector3 velocity = -deltaWorld / dt;
+    //
+    //     var pose = new Pose(velocity, Quaternion.identity);
+    //
+    //     LocomotionEvent ev = new LocomotionEvent(
+    //         active.identifier,
+    //         pose,
+    //         LocomotionEvent.TranslationType.Velocity,
+    //         LocomotionEvent.RotationType.None
+    //     );
+    //
+    //     WhenLocomotionPerformed?.Invoke(ev);
+    // }
     private void Update()
     {
-        if (_grabs.Count == 0)
-            return;
+        if (_grabs.Count == 0) return;
 
-        GrabState active = _grabs[_grabs.Count - 1];
+        GrabState active = _grabs[_grabs.Count - 1]; // O promedia si multi-hand
 
-        // // Aquí problema: si no tienes Transform de la mano (solo posición), solo puedes usar posiciones
-        // // Puedes tener almacenado el Pose inicial. Supongamos que anchorLocal fue almacenado, y evt del StartGrab incluía evt.Pose.position como world-space
-        // // Para cálculo incremental, necesitas la posición actual del interactor con ese identifier.
-        // // Supongamos que tienes una forma de obtener Transform o Pose actual del interactor con ese identifier:
-        // Pose currentPose = GetPoseForIdentifier(active.identifier);
-        // if (currentPose == null) return;
         if (!_poseStore.TryGetPose(active.identifier, out Pose currentPose))
         {
-            // si no podemos conseguir la pose, no hacemos nada este frame
+            Debug.LogWarning($"No pose for ID {active.identifier}");
             return;
         }
 
@@ -53,9 +85,8 @@ public class ClimbLocomotionBroadcaster : MonoBehaviour, ILocomotionEventBroadca
         deltaLocal = Vector3.Scale(deltaLocal, active.allowedAxes);
         Vector3 deltaWorld = active.climbTransform.TransformVector(deltaLocal);
 
-        float dt = Time.deltaTime;
-        if (dt <= 0f) dt = 0.0001f;
-        Vector3 velocity = -deltaWorld / dt;
+        float dt = Mathf.Max(Time.deltaTime, 0.0001f);
+        Vector3 velocity = -deltaWorld / dt; // Solo Y positivo si quieres one-way climb: velocity.y = Mathf.Max(velocity.y, 0);
 
         var pose = new Pose(velocity, Quaternion.identity);
 

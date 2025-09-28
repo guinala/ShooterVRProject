@@ -101,6 +101,17 @@ public class ClimbInteractable : MonoBehaviour
     //     broadcaster?.StartGrab(this, evt.Identifier, anchorLocal, allowAxes);
     // }
     // Antes, en ClimbInteractable_Meta
+    // private void HandleGrabStart(PointerEvent evt)
+    // {
+    //     int id = evt.Identifier;
+    //     Pose startPose = evt.Pose;
+    //
+    //     // opcional: validar distancia
+    //
+    //     Vector3 anchorLocal = climbTransform.InverseTransformPoint(startPose.position);
+    //
+    //     broadcaster?.StartGrab(this, id, anchorLocal, allowAxes);
+    // }
     private void HandleGrabStart(PointerEvent evt)
     {
         int id = evt.Identifier;
