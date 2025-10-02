@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using Oculus.Interaction;
 using Oculus.Interaction.Grab;
@@ -6,7 +7,7 @@ using Oculus.Interaction.Input;
 
 namespace Meta.Interaction.Locomotion.Climbing
 {
-    [RequireComponent(typeof(Rigidbody), typeof(HandGrabInteractable))]
+    [RequireComponent(typeof(HandGrabInteractable))]
     public class ClimbHandle : MonoBehaviour
     {
         [SerializeField]
@@ -55,16 +56,23 @@ namespace Meta.Interaction.Locomotion.Climbing
 
         private void HandlePointerEvent(PointerEvent evt)
         {
+            Debug.Log("SE VIENE");
             if (evt.Type == PointerEventType.Select)
             {
+                Debug.Log("Se viene el select");
                 currentInteractor = GetInteractorFromEvent(evt);
-                if (currentInteractor == null) return;
-
-                if (filterByDistance && Vector3.Distance(currentInteractor.transform.position, transform.position) > maxInteractionDistance)
+                if (currentInteractor == null)
                 {
+                    Debug.Log("Me voy a ir de vacaciones");
                     return;
                 }
 
+                if (filterByDistance && Vector3.Distance(currentInteractor.transform.position, transform.position) > maxInteractionDistance)
+                {
+                    Debug.Log("Silson");
+                    return;
+                }
+                Debug.Log("Hora de escalar");
                 climbHandler.StartClimbGrab(this, currentInteractor);
             }
             else if (evt.Type == PointerEventType.Unselect)
@@ -80,17 +88,26 @@ namespace Meta.Interaction.Locomotion.Climbing
 
         private HandGrabInteractor GetInteractorFromEvent(PointerEvent evt)
         {
-            if (evt.Data is IHand handData)
+            Debug.Log("La data es: " + evt.Data);
+            if (evt.Data is HandGrabInteractor handData)
             {
+                Debug.Log("Entro aqui");
                 var interactors = FindObjectsOfType<HandGrabInteractor>();
                 foreach (var interactor in interactors)
                 {
-                    if (interactor.Hand == handData)
+                    Debug.Log("Esto es: " + interactor);
+                    if (interactor == handData)
                     {
+                        Debug.Log("CINE");
                         return interactor;
                     }
                 }
             }
+            else
+            {
+                Debug.Log("Ni siuquiera entro aqui");
+            }
+            
 
             // Si usas controllers, agrega lógica similar aquí (evt.Data is IController, match interactor.Controller if exists)
             return null;

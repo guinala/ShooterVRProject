@@ -17,6 +17,7 @@ public class GrabTransformerEventSender : GrabFreeTransformer, ITransformer
     public new void Initialize(IGrabbable grabbable)
     {
         base.Initialize(grabbable);
+        this.grabbable = grabbable;
     }
 
     public new void BeginTransform()
